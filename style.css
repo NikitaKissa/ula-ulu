@@ -1,11 +1,6 @@
-/* ==========================================================
-   Ula-Ulu · Тренування вимови
-   Палітра: 601D49 · BD5579 · EA9D9D · FFEBB8
-   ========================================================== */
-
 :root {
     --plum: #601D49;
-    --plum-deep: #45102F;   /* темніша похідна від plum, для віньєтки */
+    --plum-deep: #45102F;
     --rose: #BD5579;
     --blush: #EA9D9D;
     --cream: #FFEBB8;
@@ -13,12 +8,8 @@
     --font-display: "Unbounded", "Trebuchet MS", system-ui, sans-serif;
     --font-ui: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-    /* Розмір великої кнопки: на телефоні майже на всю ширину,
-       на десктопі обмежений висотою екрана і стелею 28rem */
     --btn-size: clamp(14rem, min(82vw, 58dvh), 28rem);
 
-    /* Розмір тексту всередині кнопки. Якщо склади виявляться
-       довшими за очікувані — зменште множник (0.19 → 0.16) */
     --screen-size: calc(var(--btn-size) * 0.19);
 }
 
@@ -55,10 +46,6 @@ body {
     border: 0;
 }
 
-/* ==========================================================
-   Гра
-   ========================================================== */
-
 #game {
     min-height: 100vh;
     min-height: 100dvh;
@@ -84,8 +71,6 @@ body {
     font: 700 1rem/1.2 var(--font-ui);
     text-align: center;
 }
-
-/* ---------- Велика кнопка ---------- */
 
 #spell-button {
     position: relative;
@@ -158,10 +143,6 @@ body {
     outline-offset: 22px;
 }
 
-/* ==========================================================
-   Форма-оверлей (на весь екран, з розмиттям)
-   ========================================================== */
-
 #game-type-form {
     position: fixed;
     inset: 0;
@@ -181,7 +162,6 @@ body {
     }
 }
 
-/* Форма зникає, якщо JS ховає її будь-яким із цих способів */
 #game-type-form[hidden],
 #game-type-form.hidden {
     display: none;
@@ -194,7 +174,7 @@ body {
 
 .overlay-content {
     width: min(100%, 22rem);
-    margin: auto; /* центрує, а на низьких екранах не обрізає вміст */
+    margin: auto;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -209,8 +189,7 @@ body {
 
 .brand-name {
     color: var(--cream);
-    font: 700 clamp(2.5rem, 13vw, 3.5rem)/1 var(--font-display);
-    letter-spacing: -0.02em;
+    height: 5%;
 }
 
 .brand-tag {
@@ -286,10 +265,6 @@ body {
     outline-offset: 3px;
 }
 
-/* ==========================================================
-   Низькі екрани (телефон у горизонтальному режимі)
-   ========================================================== */
-
 @media (max-height: 480px) {
     #game {
         gap: 1rem;
@@ -299,10 +274,6 @@ body {
         margin-bottom: 0.75rem;
     }
 }
-
-/* ==========================================================
-   Без анімацій, якщо користувач так налаштував систему
-   ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
     #spell-button::before,
