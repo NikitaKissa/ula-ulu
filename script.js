@@ -50,7 +50,8 @@
       GAMES = {
         mrl: ["\u043C\u0440\u043B", "\u043B\u0440\u043C"],
         bd: ["\u0431\u0434", "\u0434\u0431"],
-        mn: ["\u043C\u043D", "\u0441\u043D"],
+        mn: ["\u043C\u043D", "\u043D\u043C"],
+        sn: ["\u0441\u043D", "\u043D\u0441"],
         kpt: ["\u043A\u043F\u0442", "\u043F\u043A\u0442"],
         shch: ["\u0448\u0447", "\u0447\u0448"],
         mrktch: ["\u043C\u0440\u043A\u0442\u0447", "\u0447\u043C\u0440\u043A\u0442"],
@@ -119,10 +120,24 @@
     }
     textScreen.textContent = game2.Next();
   });
+  var GAME_TYPE_LABELS = {
+    all: "\u0423\u0441\u0456",
+    mrl: "\u041C\u0440\u043B(\u0456)",
+    bd: "\u0411\u0434(\u0456)",
+    mn: "\u041C\u043D(\u0456)",
+    sn: "\u0421\u043D(\u0456)",
+    kpt: "\u041A\u043F\u0442(\u0456)",
+    shch: "\u0428\u0447(\u0456)",
+    mrktch: "\u041C\u0440\u043A\u0442\u0447(\u0456)",
+    zd: "\u0417\u0434(\u0456)",
+    zis: "\u0417\u0456\u0441(\u0456)",
+    lv: "\u041B\u0432(\u0456)"
+  };
   var gameTypeForm = $id("game-type-form");
   if (gameTypeForm) {
     form.RunPipeline(gameTypeForm);
     form.AfterPipelineAction(() => {
+      $id("game-type-screen").textContent = GAME_TYPE_LABELS[game2.getGameType()];
       gameTypeForm.remove();
     });
   } else console.warn("Form #game-type-form not found");

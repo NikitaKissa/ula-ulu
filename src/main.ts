@@ -16,10 +16,29 @@ $id("spell-button")?.addEventListener("click", () => {
     textScreen.textContent = game.Next()
 })
 
+type GameType = keyof typeof GAME_TYPE_LABELS;
+const GAME_TYPE_LABELS = {
+    all: "Усі",
+    mrl: "Мрл(і)",
+    bd: "Бд(і)",
+    mn: "Мн(і)",
+    sn: "Сн(і)",
+    kpt: "Кпт(і)",
+    shch: "Шч(і)",
+    mrktch: "Мрктч(і)",
+    zd: "Зд(і)",
+    zis: "Зіс(і)",
+    lv: "Лв(і)",
+};
+
 const gameTypeForm = $id("game-type-form")
 if(gameTypeForm){
     form.RunPipeline(gameTypeForm)
-    form.AfterPipelineAction(() => { gameTypeForm.remove() })
+    form.AfterPipelineAction(() => { 
+        $id("game-type-screen")!.textContent = GAME_TYPE_LABELS[game.getGameType() as GameType]
+
+        gameTypeForm.remove() 
+    })
 }
 else console.warn("Form #game-type-form not found")
     

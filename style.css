@@ -1,0 +1,323 @@
+/* ==========================================================
+   Ula-Ulu · Тренування вимови
+   Палітра: 601D49 · BD5579 · EA9D9D · FFEBB8
+   ========================================================== */
+
+:root {
+    --plum: #601D49;
+    --plum-deep: #45102F;   /* темніша похідна від plum, для віньєтки */
+    --rose: #BD5579;
+    --blush: #EA9D9D;
+    --cream: #FFEBB8;
+
+    --font-display: "Unbounded", "Trebuchet MS", system-ui, sans-serif;
+    --font-ui: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    /* Розмір великої кнопки: на телефоні майже на всю ширину,
+       на десктопі обмежений висотою екрана і стелею 28rem */
+    --btn-size: clamp(14rem, min(82vw, 58dvh), 28rem);
+
+    /* Розмір тексту всередині кнопки. Якщо склади виявляться
+       довшими за очікувані — зменште множник (0.19 → 0.16) */
+    --screen-size: calc(var(--btn-size) * 0.19);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: var(--plum-deep);
+    background-image: radial-gradient(90% 70% at 50% 45%, var(--plum) 0%, var(--plum-deep) 100%);
+    background-attachment: fixed;
+    color: var(--cream);
+    font-family: var(--font-ui);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ==========================================================
+   Гра
+   ========================================================== */
+
+#game {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.75rem, 6dvh, 3.5rem);
+    padding:
+        max(1rem, env(safe-area-inset-top))
+        max(1rem, env(safe-area-inset-right))
+        max(1rem, env(safe-area-inset-bottom))
+        max(1rem, env(safe-area-inset-left));
+    overflow: hidden; /* хвилі за краєм екрана не створюють скрол */
+}
+
+#game-type-label {
+    margin: 0;
+    padding: 0.5rem 1.15rem;
+    border: 1.5px solid rgba(234, 157, 157, 0.45);
+    border-radius: 999px;
+    color: var(--blush);
+    font: 700 1rem/1.2 var(--font-ui);
+    text-align: center;
+}
+
+/* ---------- Велика кнопка ---------- */
+
+#spell-button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--btn-size);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--plum);
+    font: 600 var(--screen-size)/1.05 var(--font-display);
+    cursor: pointer;
+    box-shadow:
+        0 0 0 clamp(8px, 1.8vmin, 14px) rgba(189, 85, 121, 0.55),
+        0 28px 60px rgba(30, 5, 20, 0.45);
+    transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#screen {
+    display: block;
+    max-width: 84%;
+    text-align: center;
+    overflow-wrap: anywhere;
+    letter-spacing: -0.01em;
+}
+
+/* Звукові хвилі — єдиний «живий» рух на сторінці */
+#spell-button::before,
+#spell-button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--blush);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    animation: wave 3.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+#spell-button::after {
+    animation-delay: 1.8s;
+}
+
+@keyframes wave {
+    0%   { transform: scale(1.1); opacity: 0.55; }
+    100% { transform: scale(1.55); opacity: 0; }
+}
+
+@media (hover: hover) {
+    #spell-button:hover {
+        transform: scale(1.02);
+    }
+}
+
+#spell-button:active {
+    transform: scale(0.955);
+    box-shadow:
+        0 0 0 6px rgba(189, 85, 121, 0.75),
+        0 12px 30px rgba(30, 5, 20, 0.4);
+}
+
+#spell-button:focus-visible {
+    outline: 3px solid var(--cream);
+    outline-offset: 22px;
+}
+
+/* ==========================================================
+   Форма-оверлей (на весь екран, з розмиттям)
+   ========================================================== */
+
+#game-type-form {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background: rgba(69, 16, 47, 0.62);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    animation: overlay-in 0.45s ease-out both;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    #game-type-form {
+        background: rgba(69, 16, 47, 0.95);
+    }
+}
+
+/* Форма зникає, якщо JS ховає її будь-яким із цих способів */
+#game-type-form[hidden],
+#game-type-form.hidden {
+    display: none;
+}
+
+@keyframes overlay-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.overlay-content {
+    width: min(100%, 22rem);
+    margin: auto; /* центрує, а на низьких екранах не обрізає вміст */
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+}
+
+.brand-name {
+    color: var(--cream);
+    font: 700 clamp(2.5rem, 13vw, 3.5rem)/1 var(--font-display);
+    letter-spacing: -0.02em;
+}
+
+.brand-tag {
+    color: var(--blush);
+    font: 600 1rem/1.3 var(--font-ui);
+}
+
+#game-type-form label {
+    color: var(--cream);
+    font: 700 1rem/1.3 var(--font-ui);
+}
+
+#game-type {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 3.5rem;
+    padding: 0 3rem 0 1.25rem;
+    border: 2px solid var(--blush);
+    border-radius: 999px;
+    background-color: rgba(255, 235, 184, 0.08);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23FFEBB8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7.5l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.25rem center;
+    background-size: 1.1rem;
+    color: var(--cream);
+    font: 600 1.05rem/1 var(--font-ui);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+#game-type:hover {
+    background-color: rgba(255, 235, 184, 0.14);
+}
+
+#game-type:focus-visible {
+    border-color: var(--cream);
+    outline: 3px solid rgba(234, 157, 157, 0.55);
+    outline-offset: 2px;
+}
+
+#game-type option {
+    background: var(--plum);
+    color: var(--cream);
+}
+
+#game-type-form button {
+    height: 3.5rem;
+    margin-top: 0.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--cream);
+    color: var(--plum);
+    font: 700 1.05rem/1 var(--font-ui);
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+@media (hover: hover) {
+    #game-type-form button:hover {
+        background: var(--blush);
+    }
+}
+
+#game-type-form button:active {
+    transform: scale(0.98);
+}
+
+#game-type-form button:focus-visible {
+    outline: 3px solid var(--blush);
+    outline-offset: 3px;
+}
+
+/* ==========================================================
+   Низькі екрани (телефон у горизонтальному режимі)
+   ========================================================== */
+
+@media (max-height: 480px) {
+    #game {
+        gap: 1rem;
+    }
+
+    .brand {
+        margin-bottom: 0.75rem;
+    }
+}
+
+/* ==========================================================
+   Без анімацій, якщо користувач так налаштував систему
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    #spell-button::before,
+    #spell-button::after {
+        animation: none;
+        display: none;
+    }
+
+    #game-type-form {
+        animation: none;
+    }
+
+    #spell-button,
+    #game-type,
+    #game-type-form button {
+        transition: none;
+    }
+}
