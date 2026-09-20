@@ -1,54 +1,53 @@
-const $id = (id: string) => document.getElementById(id)
+const VOWELS = ['і', 'е', 'а', 'о', 'у', 'и']
 
-export function RunGame() {
-    const la = word(mrl, WordType.normalNreverse)
+const GAMES = {
+    mrl:    ['мрл',   'лрм'],
+    bd:     ['бд',    'дб'],
+    mn:     ['мн',    'сн'],
+    kpt:    ['кпт',   'пкт'],
+    shch:   ['шч',    'чш'],
+    mrktch: ['мрктч', 'чмркт'],
+    zd:     ['зд',    'дз'],
+    zis:    ['зіс',   'сіз'],
+    lv:     ['лв',    'вл'],
+} as const satisfies Record<string, readonly [string, string]>
 
-    console.log(la())
-    console.log(la())
-    console.log(la())
-    console.log(la())
-    console.log(la())
-    console.log(la())
-    console.log(la())
-    console.log(la())
+export type GameKey = keyof typeof GAMES
+export type GameType = GameKey | 'all'
+
+const KEYS = Object.keys(GAMES) as GameKey[]
+
+const build = ([root, rev]: readonly [string, string]): string[] => [
+    ...VOWELS.map(v => root + v),
+    ...VOWELS.map(v => rev + v),
+    ...VOWELS.flatMap(v => [root + v, rev + v]),
+]
+
+const perGame = Object.fromEntries(
+    KEYS.map(k => [k, build(GAMES[k])])
+) as Record<GameKey, string[]>
+
+const sequences: Record<GameType, string[]> = {
+    ...perGame,
+    all: KEYS.flatMap(k => perGame[k]),
 }
 
-// Words
+const pos = Object.fromEntries(
+    (Object.keys(sequences) as GameType[]).map(k => [k, 0])
+) as Record<GameType, number>
 
-const vowelLetters = ['і', 'е', 'а', 'о', 'у', 'и']
+let gameType: GameType = 'all'
 
-const mrl = (suffix: string, reverse?: boolean) => reverse ? `лрм${suffix}` : `мрл${suffix}`
-const bd = (suffix: string, reverse?: boolean) => reverse ? `дб${suffix}` : `бд${suffix}`
-const mn = (suffix: string, reverse?: boolean) => reverse ? `сн${suffix}` : `мн${suffix}` 
-const kpt = (suffix: string, reverse?: boolean) => reverse ? `пкт${suffix}` : `кпт${suffix}` 
-const shch = (suffix: string, reverse?: boolean) => reverse ? `чш${suffix}` : `шч${suffix}` 
-const mrktch = (suffix: string, reverse?: boolean) => reverse ? `чмркт${suffix}` : `мрктч${suffix}` 
-const zd = (suffix: string, reverse?: boolean) => reverse ? `дз${suffix}` : `зд${suffix}` 
-const zis = (suffix: string, reverse?: boolean) => reverse ? `сіз${suffix}` : `зіс${suffix}` 
-const lv = (suffix: string, reverse?: boolean) => reverse ? `вл${suffix}` : `лв${suffix}`
+export const setGameType = (t: GameType) => { gameType = t }
 
-enum WordType{
-    normal,
-    reverse,
-    normalNreverse
+export function startGame(t: GameType) {
+    gameType = t
+    pos[t] = 0
 }
 
-function word(fn: (suffix: string, reverse?: boolean) => string, type: WordType) {
-    let counter = 0
-    return () => {
-        if(counter >= vowelLetters.length)
-            if(type === WordType.normalNreverse && counter >= vowelLetters.length*2-1)
-                counter = 0
-            else counter = 0
-
-        switch(type){
-            case WordType.normal: 
-                return fn(vowelLetters[counter++])
-            case WordType.reverse: 
-                return fn(vowelLetters[counter++], true)
-            case WordType.normalNreverse:
-                const even: boolean = counter % 2 == 0 
-                return fn(vowelLetters[counter++], even)
-        }
-    }
+export function Next() {
+    const seq = sequences[gameType]
+    const word = seq[pos[gameType]]
+    pos[gameType] = (pos[gameType] + 1) % seq.length
+    return word
 }

@@ -28,46 +28,67 @@
   // src/game.ts
   var game_exports = {};
   __export(game_exports, {
-    RunGame: () => RunGame
+    Next: () => Next,
+    setGameType: () => setGameType,
+    startGame: () => startGame
   });
-  function RunGame() {
-    const la = word(mrl, 2 /* normalNreverse */);
-    console.log(la());
-    console.log(la());
-    console.log(la());
-    console.log(la());
-    console.log(la());
-    console.log(la());
-    console.log(la());
-    console.log(la());
+  function startGame(t) {
+    gameType = t;
+    pos[t] = 0;
   }
-  function word(fn, type) {
-    let counter = 0;
-    return () => {
-      if (counter >= vowelLetters.length)
-        if (type === 2 /* normalNreverse */ && counter >= vowelLetters.length * 2 - 1)
-          counter = 0;
-        else counter = 0;
-      switch (type) {
-        case 0 /* normal */:
-          return fn(vowelLetters[counter++]);
-        case 1 /* reverse */:
-          return fn(vowelLetters[counter++], true);
-        case 2 /* normalNreverse */:
-          const even = counter % 2 == 0;
-          return fn(vowelLetters[counter++], even);
-      }
-    };
+  function Next() {
+    const seq = sequences[gameType];
+    const word = seq[pos[gameType]];
+    pos[gameType] = (pos[gameType] + 1) % seq.length;
+    return word;
   }
-  var vowelLetters, mrl;
+  var VOWELS, GAMES, KEYS, build, perGame, sequences, pos, gameType, setGameType;
   var init_game = __esm({
     "src/game.ts"() {
-      vowelLetters = ["\u0456", "\u0435", "\u0430", "\u043E", "\u0443", "\u0438"];
-      mrl = (suffix, reverse) => reverse ? `\u043B\u0440\u043C${suffix}` : `\u043C\u0440\u043B${suffix}`;
+      VOWELS = ["\u0456", "\u0435", "\u0430", "\u043E", "\u0443", "\u0438"];
+      GAMES = {
+        mrl: ["\u043C\u0440\u043B", "\u043B\u0440\u043C"],
+        bd: ["\u0431\u0434", "\u0434\u0431"],
+        mn: ["\u043C\u043D", "\u0441\u043D"],
+        kpt: ["\u043A\u043F\u0442", "\u043F\u043A\u0442"],
+        shch: ["\u0448\u0447", "\u0447\u0448"],
+        mrktch: ["\u043C\u0440\u043A\u0442\u0447", "\u0447\u043C\u0440\u043A\u0442"],
+        zd: ["\u0437\u0434", "\u0434\u0437"],
+        zis: ["\u0437\u0456\u0441", "\u0441\u0456\u0437"],
+        lv: ["\u043B\u0432", "\u0432\u043B"]
+      };
+      KEYS = Object.keys(GAMES);
+      build = ([root, rev]) => [
+        ...VOWELS.map((v) => root + v),
+        ...VOWELS.map((v) => rev + v),
+        ...VOWELS.flatMap((v) => [root + v, rev + v])
+      ];
+      perGame = Object.fromEntries(
+        KEYS.map((k) => [k, build(GAMES[k])])
+      );
+      sequences = {
+        ...perGame,
+        all: KEYS.flatMap((k) => perGame[k])
+      };
+      pos = Object.fromEntries(
+        Object.keys(sequences).map((k) => [k, 0])
+      );
+      gameType = "all";
+      setGameType = (t) => {
+        gameType = t;
+      };
     }
   });
 
   // src/main.ts
   var game = (init_game(), __toCommonJS(game_exports));
-  game.RunGame();
+  var $id = (id) => document.getElementById(id);
+  var textScreen = $id("screen");
+  $id("spell-button")?.addEventListener("click", () => {
+    if (!textScreen) {
+      console.warn("Element #screen not found");
+      return;
+    }
+    textScreen.textContent = game.Next();
+  });
 })();
