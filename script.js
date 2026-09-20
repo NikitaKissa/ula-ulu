@@ -29,6 +29,7 @@
   var game_exports = {};
   __export(game_exports, {
     Next: () => Next,
+    getGameType: () => getGameType,
     setGameType: () => setGameType,
     startGame: () => startGame
   });
@@ -42,7 +43,7 @@
     pos[gameType] = (pos[gameType] + 1) % seq.length;
     return word;
   }
-  var VOWELS, GAMES, KEYS, build, perGame, sequences, pos, gameType, setGameType;
+  var VOWELS, GAMES, KEYS, build, perGame, sequences, pos, gameType, getGameType, setGameType;
   var init_game = __esm({
     "src/game.ts"() {
       VOWELS = ["\u0456", "\u0435", "\u0430", "\u043E", "\u0443", "\u0438"];
@@ -74,14 +75,41 @@
         Object.keys(sequences).map((k) => [k, 0])
       );
       gameType = "all";
+      getGameType = () => gameType;
       setGameType = (t) => {
         gameType = t;
       };
     }
   });
 
+  // src/form.ts
+  var form_exports = {};
+  __export(form_exports, {
+    AfterPipelineAction: () => AfterPipelineAction,
+    RunPipeline: () => RunPipeline
+  });
+  function RunPipeline(form2) {
+    form2.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(form2);
+      const gameType2 = formData.get("game-type");
+      game.setGameType(gameType2);
+      afterPipelineActionFn();
+    });
+  }
+  function AfterPipelineAction(callBack) {
+    afterPipelineActionFn = callBack;
+  }
+  var game, afterPipelineActionFn;
+  var init_form = __esm({
+    "src/form.ts"() {
+      game = (init_game(), __toCommonJS(game_exports));
+    }
+  });
+
   // src/main.ts
-  var game = (init_game(), __toCommonJS(game_exports));
+  var game2 = (init_game(), __toCommonJS(game_exports));
+  var form = (init_form(), __toCommonJS(form_exports));
   var $id = (id) => document.getElementById(id);
   var textScreen = $id("screen");
   $id("spell-button")?.addEventListener("click", () => {
@@ -89,6 +117,13 @@
       console.warn("Element #screen not found");
       return;
     }
-    textScreen.textContent = game.Next();
+    textScreen.textContent = game2.Next();
   });
+  var gameTypeForm = $id("game-type-form");
+  if (gameTypeForm) {
+    form.RunPipeline(gameTypeForm);
+    form.AfterPipelineAction(() => {
+      gameTypeForm.remove();
+    });
+  } else console.warn("Form #game-type-form not found");
 })();

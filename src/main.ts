@@ -1,6 +1,7 @@
 declare const require: (path: string) => any;
 
 const game = require("./game")
+const form = require("./form")
 
 const $id = (id: string) => document.getElementById(id)
 
@@ -14,4 +15,12 @@ $id("spell-button")?.addEventListener("click", () => {
 
     textScreen.textContent = game.Next()
 })
+
+const gameTypeForm = $id("game-type-form")
+if(gameTypeForm){
+    form.RunPipeline(gameTypeForm)
+    form.AfterPipelineAction(() => { gameTypeForm.remove() })
+}
+else console.warn("Form #game-type-form not found")
+    
 

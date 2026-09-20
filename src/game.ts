@@ -38,6 +38,7 @@ const pos = Object.fromEntries(
 
 let gameType: GameType = 'all'
 
+export const getGameType = () => gameType
 export const setGameType = (t: GameType) => { gameType = t }
 
 export function startGame(t: GameType) {
